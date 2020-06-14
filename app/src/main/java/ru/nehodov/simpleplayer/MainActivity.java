@@ -92,6 +92,8 @@ public class MainActivity extends AppCompatActivity {
         skipNext.setOnClickListener(this::onSkipNextClick);
         skipPrevious.setOnClickListener(this::onSkipPreviousClick);
 
+        player.setOnCompletionListener(mp -> playTrack(++trackNumber));
+
         new Thread(() -> {
             while (player != null) {
                 try {
