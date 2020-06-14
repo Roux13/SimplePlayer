@@ -3,4 +3,7 @@
     <color name="colorPrimary">#6200EE</color>
     <color name="colorPrimaryDark">#3700B3</color>
     <color name="colorAccent">#03DAC5</color>
+    <color name="walkmanColor">#EA4E11</color>
+    <color name="absoluteWhite">#FFFFFF</color>
+    <color name="deep_Black">#000000</color>
 </resources>

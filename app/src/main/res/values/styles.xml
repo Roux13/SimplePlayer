@@ -2,9 +2,15 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorPrimary">@color/walkmanColor</item>
+        <item name="colorPrimaryDark">@color/walkmanColor</item>
+        <item name="colorAccent">@color/walkmanColor</item>
+    </style>
+
+    <style name="CustomButton">
+        <item name="background">@drawable/btn_custom</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textAllCaps">true</item>
     </style>
 
 </resources>
