@@ -18,7 +18,6 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    private MediaPlayer player;
     ImageButton skipPrevious;
     ImageButton skipNext;
     SeekBar positionBar;
@@ -31,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     String[] trackLabels;
 
     int trackNumber = 0;
+    private MediaPlayer player;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
