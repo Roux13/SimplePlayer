@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">SimplePlayer</string>
     <string name="desc">Desc</string>
-</resources>
+    <string name="remainedTime">- %s</string>
+    </resources>
