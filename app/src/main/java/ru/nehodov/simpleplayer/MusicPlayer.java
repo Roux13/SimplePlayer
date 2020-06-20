@@ -1,10 +1,16 @@
 package ru.nehodov.simpleplayer;
 
 import android.media.MediaPlayer;
+import android.net.Uri;
+import android.util.Log;
+import android.widget.Toast;
 
+import java.io.File;
 import java.lang.reflect.Field;
 
 public class MusicPlayer {
+
+    private static final String TAG = MusicPlayer.class.getName();
 
     private MediaPlayer player;
     private int[] resourceIds;
@@ -17,6 +23,23 @@ public class MusicPlayer {
     public MusicPlayer(SimplePlayerContract.PlayerScreen screen) {
         this.screen = screen;
         prepareTrackList();
+    }
+
+    public MusicPlayer(SimplePlayerContract.PlayerScreen screen, Uri musicUri) {
+        this.screen = screen;
+        player = MediaPlayer.create(screen.getContext(), musicUri);
+        if (player != null) {
+            resourceIds = new int[0];
+            trackDuration = player.getDuration();
+            screen.setTrackInformation(trackDuration, new File(musicUri.getPath()).getName());
+            player.setLooping(true);
+            player.start();
+        } else {
+            Log.d(TAG, "player is null");
+            Toast.makeText(screen.getContext(), "Cannot open the file", Toast.LENGTH_LONG)
+                    .show();
+            player = new MediaPlayer();
+        }
     }
 
     public void prepareTrackList() {
@@ -37,19 +60,27 @@ public class MusicPlayer {
     }
 
     public void skipPreviousTrack() {
-        currentTrackNumber =
-                (currentTrackNumber - 1) < 0 ? resourceIds.length - 1 : currentTrackNumber - 1;
-        player.release();
-        preparePlayer(currentTrackNumber);
-        playTrack();
+        if (resourceIds.length > 0) {
+            currentTrackNumber =
+                    (currentTrackNumber - 1) < 0 ? resourceIds.length - 1 : currentTrackNumber - 1;
+            player.release();
+            preparePlayer(currentTrackNumber);
+            playTrack();
+        } else {
+            player.start();
+        }
     }
 
     public void skipNextTrack() {
-        currentTrackNumber =
-                (currentTrackNumber + 1) >= resourceIds.length ? 0 : currentTrackNumber + 1;
-        player.release();
-        preparePlayer(currentTrackNumber);
-        playTrack();
+        if (resourceIds.length > 0) {
+            currentTrackNumber =
+                    (currentTrackNumber + 1) >= resourceIds.length ? 0 : currentTrackNumber + 1;
+            player.release();
+            preparePlayer(currentTrackNumber);
+            playTrack();
+        } else {
+            player.start();
+        }
     }
 
     private void preparePlayer(int trackNumber) {
@@ -60,7 +91,7 @@ public class MusicPlayer {
     }
 
     private void playTrack() {
-        if (resourceIds.length > 0) {
+        if (resourceIds != null) {
             player.start();
         }
     }

@@ -4,9 +4,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
@@ -15,6 +18,8 @@ import android.widget.TextView;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements SimplePlayerContract.PlayerScreen {
+
+    private static final String TAG = MainActivity.class.getName();
 
     private SeekBar positionBar;
     private TextView elapsingTimeLabel;
@@ -38,7 +43,15 @@ public class MainActivity extends AppCompatActivity implements SimplePlayerContr
         remainingTimeLabel = findViewById(R.id.remainingTimeLabel);
         trackLabel = findViewById(R.id.trackLabel);
 
-        player = new MusicPlayer(this);
+        if (getIntent() != null && getIntent().getAction().equals(Intent.ACTION_VIEW)) {
+            Intent intent = getIntent();
+            Log.d(TAG, "There is an intent with type: " + intent.getType()
+                    + " with action: " + intent.getAction() + " data: " + intent.getData());
+            player = new MusicPlayer(this, intent.getData());
+        } else {
+            Log.d(TAG, "There are no intents");
+            player = new MusicPlayer(this);
+        }
         player.attachScreen(this);
 
          handler = new Handler() {
