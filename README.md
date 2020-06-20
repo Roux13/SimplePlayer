@@ -1,5 +1,6 @@
 # SimplePlayer
 
+![Image1 of SimplePlayer](/images/simpleplayer.png)  
 
 ## Configuration
 
