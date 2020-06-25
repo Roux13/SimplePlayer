@@ -16,6 +16,11 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 
 public class MainActivity extends AppCompatActivity implements SimplePlayerContract.PlayerScreen {
 
@@ -28,7 +33,7 @@ public class MainActivity extends AppCompatActivity implements SimplePlayerContr
 
     private MusicPlayer player;
 
-    private Handler handler;
+    private Disposable disposable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,21 +59,25 @@ public class MainActivity extends AppCompatActivity implements SimplePlayerContr
         }
         player.attachScreen(this);
 
-         handler = new Handler() {
-            @Override
-            public void handleMessage(@NonNull Message msg) {
-                super.handleMessage(msg);
-                int currentPosition = msg.what;
-                changeTrackInformation(currentPosition, player.getTrackDuration());
-            }
-        };
+        if (this.disposable == null) {
+            this.disposable = Observable.interval(1, TimeUnit.SECONDS)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(v -> {
+                        if (player != null) {
+                            changeTrackInformation(
+                                    player.getCurrentPosition(), player.getTrackDuration());
+                        }
+                    });
+        }
 
         positionBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
-                    player.seekTo(progress);
-                    positionBar.setProgress(progress);
+                    if (player != null) {
+                        player.seekTo(progress);
+                        positionBar.setProgress(progress);
+                    }
                 }
             }
 
@@ -82,34 +91,18 @@ public class MainActivity extends AppCompatActivity implements SimplePlayerContr
 
             }
         });
-        play.setOnClickListener(onPlay -> player.start());
+        play.setOnClickListener(this::start);
         pause.setOnClickListener(onPause -> player.pause());
         skipNext.setOnClickListener(this::onSkipNextClick);
         skipPrevious.setOnClickListener(this::onSkipPreviousClick);
-
-        new Thread(() -> {
-            while (player != null) {
-                try {
-                    if (player.isPlaying()) {
-                        Message message = new Message();
-                        message.what = player.getCurrentPosition();
-                        handler.sendMessage(message);
-                    }
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
     }
 
-    @Override
-    protected void onStop() {
-        player.release();
-        player.detachScreen();
-        player = null;
-        handler = null;
-        super.onStop();
+    public void start(View view) {
+        if (player == null) {
+            player = new MusicPlayer(this);
+            player.attachScreen(this);
+        }
+        player.start();
     }
 
     @Override
@@ -142,6 +135,22 @@ public class MainActivity extends AppCompatActivity implements SimplePlayerContr
 
     private String createTimeLabel(int time) {
         return String.format(Locale.US, "%d:%02d", time / 1000 / 60, time / 1000 % 60);
+    }
+
+    @Override
+    protected void onStop() {
+        player.release();
+        player.detachScreen();
+        player = null;
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (this.disposable != null) {
+            this.disposable.dispose();
+        }
     }
 
 }
